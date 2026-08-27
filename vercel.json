@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/((?!assets/|favicon|registerSW|sw|manifest).*)",
-      "destination": "/index.html"
-    }
-  ]
-}
