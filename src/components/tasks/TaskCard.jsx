@@ -3,13 +3,11 @@ import { useTasks } from '../../hooks/useTasks';
 import {
   CheckCircle2,
   Circle,
-  Calendar,
   Tag,
   Repeat,
   MoreVertical,
   Edit2,
   Trash2,
-  AlertTriangle,
 } from 'lucide-react';
 
 export const TaskCard = ({ task, onEdit }) => {
@@ -17,12 +15,6 @@ export const TaskCard = ({ task, onEdit }) => {
   const [showOptions, setShowOptions] = useState(false);
 
   const isCompleted = task.status === 'Completed';
-  const isOverdue = React.useMemo(() => {
-    if (isCompleted || !task.dueDate) return false;
-    const due = new Date(task.dueDate);
-    due.setHours(23, 59, 59, 999);
-    return new Date() > due;
-  }, [isCompleted, task.dueDate]);
 
   // Find matching category color/icon
   const matchedCat = categories.find((c) => c.name === task.category);
@@ -40,8 +32,6 @@ export const TaskCard = ({ task, onEdit }) => {
       className={`group relative p-5 rounded-2xl glass-card border transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
         isCompleted
           ? 'opacity-70 bg-gray-50/50 dark:bg-gray-900/40 border-gray-200/50 dark:border-gray-800/40'
-          : isOverdue
-          ? 'border-rose-500/40 bg-rose-50/20 dark:bg-rose-950/10'
           : 'border-gray-200/80 dark:border-gray-800/80'
       }`}
     >
@@ -104,7 +94,7 @@ export const TaskCard = ({ task, onEdit }) => {
                   className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
-                  Edit Task
+                  Edit Habit
                 </button>
                 <button
                   onClick={() => {
@@ -114,7 +104,7 @@ export const TaskCard = ({ task, onEdit }) => {
                   className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  Delete Task
+                  Delete Habit
                 </button>
               </div>
             )}
@@ -122,7 +112,7 @@ export const TaskCard = ({ task, onEdit }) => {
         </div>
       </div>
 
-      {/* Task Body: Title & Description */}
+      {/* Habit Body: Title & Description */}
       <h3
         className={`font-semibold text-base text-gray-900 dark:text-white mb-1.5 font-outfit line-clamp-1 ${
           isCompleted ? 'line-through text-gray-400 dark:text-gray-500' : ''
@@ -143,27 +133,23 @@ export const TaskCard = ({ task, onEdit }) => {
           className={`flex items-center gap-1.5 font-medium ${
             isCompleted
               ? 'text-emerald-600 dark:text-emerald-400'
-              : isOverdue
-              ? 'text-rose-600 dark:text-rose-400 font-semibold'
               : 'text-sky-600 dark:text-sky-400'
           }`}
         >
           {isCompleted ? (
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-          ) : isOverdue ? (
-            <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
           ) : (
             <Circle className="w-3.5 h-3.5 text-sky-500" />
           )}
           <span>
-            {isCompleted ? 'Completed' : isOverdue ? 'Overdue' : 'Pending'}
+            {isCompleted ? 'Completed' : 'Pending'}
           </span>
         </div>
 
         {task.isRecurring && (
           <span
             className="flex items-center gap-1 text-[11px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-full"
-            title={`Recurring task: ${task.recurrenceType}`}
+            title={`Recurring habit: ${task.recurrenceType}`}
           >
             <Repeat className="w-3 h-3" />
             {task.recurrenceType}
