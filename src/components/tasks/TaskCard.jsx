@@ -17,8 +17,12 @@ export const TaskCard = ({ task, onEdit }) => {
   const [showOptions, setShowOptions] = useState(false);
 
   const isCompleted = task.status === 'Completed';
-  const isOverdue =
-    !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+  const isOverdue = React.useMemo(() => {
+    if (isCompleted || !task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    due.setHours(23, 59, 59, 999);
+    return new Date() > due;
+  }, [isCompleted, task.dueDate]);
 
   // Find matching category color/icon
   const matchedCat = categories.find((c) => c.name === task.category);
@@ -30,14 +34,6 @@ export const TaskCard = ({ task, onEdit }) => {
     Medium: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
     Low: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
   };
-
-  const formattedDueDate = task.dueDate
-    ? new Date(task.dueDate).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    : null;
 
   return (
     <div
@@ -141,25 +137,27 @@ export const TaskCard = ({ task, onEdit }) => {
         </p>
       )}
 
-      {/* Footer: Due Date & Recurrence */}
+      {/* Footer: Status Badge & Recurrence */}
       <div className="flex items-center justify-between text-xs pt-3 border-t border-gray-100 dark:border-gray-800/60">
         <div
           className={`flex items-center gap-1.5 font-medium ${
-            isOverdue
+            isCompleted
+              ? 'text-emerald-600 dark:text-emerald-400'
+              : isOverdue
               ? 'text-rose-600 dark:text-rose-400 font-semibold'
-              : 'text-gray-500 dark:text-gray-400'
+              : 'text-sky-600 dark:text-sky-400'
           }`}
         >
-          {isOverdue ? (
+          {isCompleted ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+          ) : isOverdue ? (
             <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
           ) : (
-            <Calendar className="w-3.5 h-3.5" />
+            <Circle className="w-3.5 h-3.5 text-sky-500" />
           )}
           <span>
-            {isOverdue ? 'Overdue: ' : task.dueDate ? 'Due: ' : 'Daily Task '}
-            {formattedDueDate || '(Resets 12 AM)'}
+            {isCompleted ? 'Completed' : isOverdue ? 'Overdue' : 'Pending'}
           </span>
-
         </div>
 
         {task.isRecurring && (

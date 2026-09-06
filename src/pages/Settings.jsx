@@ -38,7 +38,6 @@ export const Settings = () => {
   const { showToast } = useTasks();
 
   const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -61,16 +60,25 @@ export const Settings = () => {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatar(reader.result);
+        const newAvatar = reader.result;
+        setAvatar(newAvatar);
+        updateUserProfile({ avatar: newAvatar });
+        showToast('Profile photo updated!', 'success');
       };
       reader.readAsDataURL(file);
     }
   };
 
+  const handleRemovePhoto = () => {
+    setAvatar('');
+    updateUserProfile({ avatar: '' });
+    showToast('Profile photo deleted!', 'info');
+  };
+
   const handleUpdateProfile = (e) => {
     e.preventDefault();
     setSavingProfile(true);
-    updateUserProfile({ name, email, avatar });
+    updateUserProfile({ name, avatar });
     setSavingProfile(false);
     showToast('Profile updated successfully!', 'success');
   };
@@ -162,11 +170,11 @@ export const Settings = () => {
                 {avatar && (
                   <button
                     type="button"
-                    onClick={() => setAvatar('')}
+                    onClick={handleRemovePhoto}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-semibold text-xs border border-rose-500/30 transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Remove</span>
+                    <span>Delete Photo</span>
                   </button>
                 )}
               </div>
@@ -176,32 +184,17 @@ export const Settings = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
+              required
+            />
           </div>
 
           <button

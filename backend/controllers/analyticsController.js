@@ -57,9 +57,12 @@ const getDashboardAnalytics = async (req, res, next) => {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === 'Completed').length;
     const pendingTasks = tasks.filter((t) => t.status === 'Pending').length;
-    const overdueTasks = tasks.filter(
-      (t) => t.status === 'Pending' && new Date(t.dueDate) < now
-    ).length;
+    const overdueTasks = tasks.filter((t) => {
+      if (t.status !== 'Pending' || !t.dueDate) return false;
+      const due = new Date(t.dueDate);
+      due.setHours(23, 59, 59, 999);
+      return now > due;
+    }).length;
 
     // Daily productivity percentage calculation
     const todayStr = now.toISOString().split('T')[0];

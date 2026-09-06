@@ -47,20 +47,25 @@ const ProtectedLayout = ({ children, onOpenAddTask, onEditTask }) => {
 export const AppContent = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
+  const [defaultDate, setDefaultDate] = useState(null);
 
-  const handleOpenAddTask = () => {
+  // Open add-habit modal, optionally with a pre-filled due date (from Calendar)
+  const handleOpenAddTask = (prefilledDate = null) => {
     setTaskToEdit(null);
+    setDefaultDate(prefilledDate || null);
     setIsTaskModalOpen(true);
   };
 
   const handleEditTask = (task) => {
     setTaskToEdit(task);
+    setDefaultDate(null);
     setIsTaskModalOpen(true);
   };
 
   const handleCloseTaskModal = () => {
     setIsTaskModalOpen(false);
     setTaskToEdit(null);
+    setDefaultDate(null);
   };
 
   return (
@@ -68,11 +73,12 @@ export const AppContent = () => {
       {/* Global Toast Notification */}
       <Toast />
 
-      {/* Global Add / Edit Task Modal */}
+      {/* Global Add / Edit Habit Modal */}
       <TaskModal
         isOpen={isTaskModalOpen}
         onClose={handleCloseTaskModal}
         taskToEdit={taskToEdit}
+        defaultDate={defaultDate}
       />
 
       <Routes>

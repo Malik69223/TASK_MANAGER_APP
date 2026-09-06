@@ -12,7 +12,7 @@ import {
 export const BottomNav = () => {
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Tasks', path: '/tasks', icon: CheckSquare },
+    { name: 'Habits', path: '/tasks', icon: CheckSquare },
     { name: 'Calendar', path: '/calendar', icon: CalendarIcon },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
     { name: 'Categories', path: '/categories', icon: FolderKanban },

@@ -3,15 +3,29 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
+// Clear outdated service worker caches to force immediate update in user browsers
+try {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => registration.unregister());
+    }).catch(() => {});
+  }
+  if ('caches' in window) {
+    caches.keys().then((names) => {
+      names.forEach((name) => caches.delete(name));
+    }).catch(() => {});
+  }
+} catch (e) {
+  console.warn('Cache clearing notice:', e);
+}
+
 // Purge any cached demo token/tasks from previous preview sessions
-if (localStorage.getItem('taskmanager_auth_token') === 'mock_jwt_token_demo') {
-  localStorage.removeItem('taskmanager_auth_token');
-  localStorage.removeItem('taskmanager_auth_user');
-}
-const cachedTasks = localStorage.getItem('taskmanager_tasks_data');
-if (cachedTasks && (cachedTasks.includes('task_1') || cachedTasks.includes('System Architecture'))) {
-  localStorage.setItem('taskmanager_tasks_data', JSON.stringify([]));
-}
+try {
+  if (localStorage.getItem('taskmanager_auth_token') === 'mock_jwt_token_demo') {
+    localStorage.removeItem('taskmanager_auth_token');
+    localStorage.removeItem('taskmanager_auth_user');
+  }
+} catch (e) {}
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(

@@ -17,10 +17,52 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 
+const DAILY_MOTIVATIONAL_QUOTES = [
+  "“Small daily improvements over time lead to stunning results. Stay focused!” ✨",
+  "“Believe you can and you're halfway there. Make today count!” 🌟",
+  "“Your future is created by what you do today, not tomorrow.” 💪",
+  "“Consistency is the key to unlocking your potential. Keep pushing!” 🔥",
+  "“Success isn't about greatness. It's about consistency. Keep going!” 🚀",
+  "“Focus on being productive instead of busy. You've got this!” 🎯",
+  "“Action is the foundational key to all success. Take the first step!” 💡",
+  "“Don't watch the clock; do what it does. Keep going!” ⏰",
+  "“The secret of getting ahead is getting started.” 🌈",
+  "“Great things are done by a series of small things brought together.” ✨",
+  "“Push yourself, because no one else is going to do it for you.” 🏆",
+  "“Dream big, work hard, stay focused, and surround yourself with good energy.” 💫",
+  "“The harder you work for something, the greater you'll feel when you achieve it.” 🎉",
+  "“Don't stop until you're proud. Today is another opportunity to excel!” 🔥",
+  "“Quality is not an act, it is a habit. Make today extraordinary!” ⭐",
+  "“You don't have to be great to start, but you have to start to be great.” 🌟",
+  "“Success starts with self-discipline. Stay committed to your goals today!” 🎯",
+  "“Turn your obstacles into opportunities and your goals into reality.” 💎",
+  "“One small positive thought in the morning can change your whole day.” ☀️",
+  "“Your dedication today determines your triumph tomorrow.” 🏅",
+  "“Energy flows where attention goes. Keep your eyes on your goals!” ⚡",
+  "“Make each day your masterpiece. Productivity brings peace of mind.” 🎨",
+  "“Difficulties in your path are opportunities to grow stronger.” 🌿",
+  "“You are capable of achieving more than you know. Stay relentless!” 💥",
+  "“Set your goals high, and don't stop till you get there.” 🏔️",
+  "“Every accomplishment starts with the decision to try.” ✨",
+  "“Work hard in silence, let your success be your noise.” 🎺",
+  "“Be stronger than your excuses. Execute your plan today!” 🛡️",
+  "“Today's effort is tomorrow's achievement. Give it your 100%!” 🔥",
+  "“Strive for progress, not perfection. Keep building your momentum!” 📈",
+  "“Your potential is endless. Go do what you were created to do!” 🚀"
+];
+
 export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
   const { user } = useAuth();
   const { tasks, stats, loading } = useTasks();
   const [weeklyData, setWeeklyData] = useState([]);
+
+  const dailyQuote = React.useMemo(() => {
+    const today = new Date();
+    const dayOfYear = Math.floor(
+      (today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)
+    );
+    return DAILY_MOTIVATIONAL_QUOTES[dayOfYear % DAILY_MOTIVATIONAL_QUOTES.length];
+  }, []);
 
   useEffect(() => {
     const loadWeekly = async () => {
@@ -80,8 +122,8 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
               {getGreeting()}, {user?.name?.split(' ')[0] || 'Sparky'}! {greetingEmoji()}
             </h2>
 
-            <p className="text-xs sm:text-sm text-indigo-100 max-w-xl mt-1 leading-relaxed">
-              Here is your daily productivity breakdown. Keep up your momentum and accomplish your tasks today!
+            <p className="text-xs sm:text-sm font-medium text-indigo-100 max-w-xl mt-1.5 leading-relaxed tracking-wide italic">
+              {dailyQuote}
             </p>
           </div>
 
@@ -107,7 +149,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
               className="hidden sm:flex items-center gap-2 py-3 px-5 rounded-2xl bg-white text-brand-600 hover:bg-gray-100 font-bold text-sm shadow-lg transition-transform hover:scale-105 active:scale-95"
             >
               <Sparkles className="w-4 h-4" />
-              <span>New Task</span>
+              <span>Add Habit</span>
             </button>
           </div>
         </div>
@@ -214,10 +256,10 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-bold text-gray-900 dark:text-white font-outfit">
-                Weekly Productivity Trend
+                Weekly Habit Completion
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Tasks completed over the last 7 days
+                Habits completed + completion % over the last 7 days
               </p>
             </div>
             <a
@@ -239,7 +281,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white font-outfit">
-              Recent Tasks
+              Recent Habits
             </h3>
             <a
               href="/tasks"
@@ -255,7 +297,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
                 <TaskCard key={t._id} task={t} onEdit={onEditTask} />
               ))
             ) : (
-              <p className="text-xs text-gray-400 text-center py-6">No tasks created yet.</p>
+              <p className="text-xs text-gray-400 text-center py-6">No habits added yet. Start building your streak! 🔥</p>
             )}
           </div>
         </div>
@@ -264,7 +306,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white font-outfit">
-              Upcoming Scheduled Tasks
+              Upcoming Habits
             </h3>
             <a
               href="/calendar"
@@ -280,7 +322,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
                 <TaskCard key={t._id} task={t} onEdit={onEditTask} />
               ))
             ) : (
-              <p className="text-xs text-gray-400 text-center py-6">No upcoming tasks scheduled.</p>
+              <p className="text-xs text-gray-400 text-center py-6">No upcoming habits scheduled. Use the Calendar to plan! 📅</p>
             )}
           </div>
         </div>

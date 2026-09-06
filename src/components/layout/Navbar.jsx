@@ -31,7 +31,7 @@ export const Navbar = ({ onOpenAddTask }) => {
           <CheckCircle2 className="w-5 h-5" />
         </div>
         <span className="font-extrabold text-base text-gray-900 dark:text-white font-outfit">
-          TaskManager
+          HabitTracker
         </span>
       </div>
 
@@ -118,9 +118,6 @@ export const Navbar = ({ onOpenAddTask }) => {
               <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
                 <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                   {user?.name || 'User'}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {user?.email || 'user@example.com'}
                 </p>
               </div>
 

@@ -6,6 +6,8 @@ import {
   ChevronRight,
   Plus,
   Calendar as CalendarIcon,
+  CheckCircle2,
+  Clock,
 } from 'lucide-react';
 
 export const Calendar = ({ onOpenAddTask, onEditTask }) => {
@@ -48,6 +50,25 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
   });
 
   const selectedTasks = taskMap[selectedDateStr] || [];
+  const selectedCompletedCount = selectedTasks.filter((t) => t.status === 'Completed').length;
+  const selectedPendingCount = selectedTasks.filter((t) => t.status === 'Pending').length;
+  const selectedCompletionPct = selectedTasks.length > 0
+    ? Math.round((selectedCompletedCount / selectedTasks.length) * 100)
+    : 0;
+
+  // Open add-habit modal pre-filled with selected calendar date
+  const handleAddForDate = () => {
+    onOpenAddTask(selectedDateStr);
+  };
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const selectedDateLabel = new Date(selectedDateStr + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   return (
     <div className="space-y-6 pb-12">
@@ -56,22 +77,22 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
         <div>
           <div className="flex items-center gap-2 text-brand-600 dark:text-brand-400 font-bold text-xs uppercase tracking-wider mb-1">
             <CalendarIcon className="w-4 h-4" />
-            Schedule Planner
+            Habit Planner
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white font-outfit tracking-tight">
-            Task Calendar
+            Habit Calendar
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-            Click on any date to inspect or add scheduled tasks
+            Click a date to view or schedule habits for that day
           </p>
         </div>
 
         <button
-          onClick={onOpenAddTask}
+          onClick={handleAddForDate}
           className="flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-md hover:shadow-glow transition-all"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Add Task for Date</span>
+          <span>Add Habit for {new Date(selectedDateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
         </button>
       </div>
 
@@ -91,7 +112,7 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
-                onClick={() => setCurrentDate(new Date())}
+                onClick={() => { setCurrentDate(new Date()); setSelectedDateStr(todayStr); }}
                 className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Today
@@ -128,11 +149,14 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
               const dateStr = dateObj.toISOString().split('T')[0];
 
               const isSelected = dateStr === selectedDateStr;
-              const isToday = dateStr === new Date().toISOString().split('T')[0];
+              const isToday = dateStr === todayStr;
 
               const dayTasks = taskMap[dateStr] || [];
               const pendingCount = dayTasks.filter((t) => t.status === 'Pending').length;
               const completedCount = dayTasks.filter((t) => t.status === 'Completed').length;
+              const dayPct = dayTasks.length > 0
+                ? Math.round((completedCount / dayTasks.length) * 100)
+                : null;
 
               return (
                 <button
@@ -143,7 +167,7 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
                       ? 'bg-brand-600 text-white border-brand-500 shadow-glow scale-[1.02] z-10'
                       : isToday
                       ? 'bg-brand-50/50 dark:bg-brand-950/40 border-brand-500/50 text-gray-900 dark:text-white'
-                      : 'bg-white/40 dark:bg-gray-900/40 border-gray-200/60 dark:border-gray-800/60 text-gray-800 dark:text-gray-200 hover:border-brand-400'
+                      : 'bg-white/40 dark:bg-gray-900/40 border-gray-200/60 dark:border-gray-800/60 text-gray-800 dark:text-gray-200 hover:border-brand-400 hover:bg-brand-50/20 dark:hover:bg-brand-950/20'
                   }`}
                 >
                   <span
@@ -158,25 +182,34 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
                     {dayNum}
                   </span>
 
-                  {/* Task Indicator Pills */}
+                  {/* Task Indicator with completion % */}
                   {dayTasks.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {pendingCount > 0 && (
-                        <span
-                          className={`w-2 h-2 rounded-full ${
-                            isSelected ? 'bg-white' : 'bg-sky-500'
-                          }`}
-                          title={`${pendingCount} pending`}
-                        />
+                    <div className="flex flex-col gap-0.5">
+                      {dayPct !== null && (
+                        <span className={`text-[9px] font-bold leading-none ${
+                          isSelected ? 'text-white/90' : dayPct === 100 ? 'text-emerald-500' : 'text-brand-500 dark:text-brand-400'
+                        }`}>
+                          {dayPct}%
+                        </span>
                       )}
-                      {completedCount > 0 && (
-                        <span
-                          className={`w-2 h-2 rounded-full ${
-                            isSelected ? 'bg-emerald-300' : 'bg-emerald-500'
-                          }`}
-                          title={`${completedCount} completed`}
-                        />
-                      )}
+                      <div className="flex gap-0.5">
+                        {pendingCount > 0 && (
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              isSelected ? 'bg-white/70' : 'bg-sky-500'
+                            }`}
+                            title={`${pendingCount} pending`}
+                          />
+                        )}
+                        {completedCount > 0 && (
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              isSelected ? 'bg-emerald-300' : 'bg-emerald-500'
+                            }`}
+                            title={`${completedCount} completed`}
+                          />
+                        )}
+                      </div>
                     </div>
                   )}
                 </button>
@@ -187,22 +220,37 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
 
         {/* Selected Date Tasks Drawer Pane */}
         <div className="p-6 rounded-3xl glass-card border border-gray-200/80 dark:border-gray-800 flex flex-col">
-          <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800 mb-4">
-            <div>
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
-                Scheduled Tasks
-              </span>
-              <h3 className="text-base font-extrabold text-gray-900 dark:text-white font-outfit">
-                {new Date(selectedDateStr).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </h3>
-            </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-500/10 text-brand-600 dark:text-brand-400">
-              {selectedTasks.length} Tasks
+          <div className="pb-4 border-b border-gray-100 dark:border-gray-800 mb-4">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">
+              Selected Date
             </span>
+            <h3 className="text-base font-extrabold text-gray-900 dark:text-white font-outfit">
+              {selectedDateLabel}
+            </h3>
+
+            {/* Stats for selected day */}
+            {selectedTasks.length > 0 && (
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="text-center p-2 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                  <div className="text-lg font-extrabold text-gray-900 dark:text-white font-outfit">
+                    {selectedTasks.length}
+                  </div>
+                  <div className="text-[9px] text-gray-400 uppercase tracking-wide">Total</div>
+                </div>
+                <div className="text-center p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+                  <div className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400 font-outfit">
+                    {selectedCompletedCount}
+                  </div>
+                  <div className="text-[9px] text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Done</div>
+                </div>
+                <div className="text-center p-2 rounded-xl bg-brand-50 dark:bg-brand-900/20">
+                  <div className="text-lg font-extrabold text-brand-600 dark:text-brand-400 font-outfit">
+                    {selectedCompletionPct}%
+                  </div>
+                  <div className="text-[9px] text-brand-600 dark:text-brand-400 uppercase tracking-wide">Rate</div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Task Cards for Selected Date */}
@@ -215,18 +263,29 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
               <div className="py-12 text-center">
                 <CalendarIcon className="w-8 h-8 text-gray-400 mx-auto mb-2 opacity-50" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  No tasks scheduled for this date.
+                  No habits scheduled for this date.
                 </p>
                 <button
-                  onClick={onOpenAddTask}
+                  onClick={handleAddForDate}
                   className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Add Task
+                  Schedule a Habit
                 </button>
               </div>
             )}
           </div>
+
+          {/* Quick add button at bottom of pane */}
+          {selectedTasks.length > 0 && (
+            <button
+              onClick={handleAddForDate}
+              className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-brand-500/30 bg-brand-50/60 dark:bg-brand-950/30 text-brand-600 dark:text-brand-400 font-semibold text-xs hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Another Habit
+            </button>
+          )}
         </div>
       </div>
     </div>

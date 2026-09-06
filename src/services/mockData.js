@@ -1,7 +1,6 @@
 export const INITIAL_USER = {
   _id: 'user_1',
   name: 'Sparky',
-  email: 'sparky@example.com',
   avatar: '',
   createdAt: new Date().toISOString(),
 };

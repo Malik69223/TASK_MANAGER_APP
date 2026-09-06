@@ -3,7 +3,7 @@ import { useTasks } from '../../hooks/useTasks';
 import { Modal } from '../common/Modal';
 import { Calendar, Tag, AlertCircle, Repeat, Sparkles } from 'lucide-react';
 
-export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
+export const TaskModal = ({ isOpen, onClose, taskToEdit = null, defaultDate = null }) => {
   const { addTask, updateTask, categories } = useTasks();
 
   const [formData, setFormData] = useState({
@@ -11,7 +11,7 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     description: '',
     category: 'General',
     priority: 'Medium',
-    dueDate: new Date().toISOString().split('T')[0],
+    dueDate: null,
     isRecurring: false,
     recurrenceType: 'Daily',
   });
@@ -28,7 +28,7 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
         priority: taskToEdit.priority || 'Medium',
         dueDate: taskToEdit.dueDate
           ? new Date(taskToEdit.dueDate).toISOString().split('T')[0]
-          : new Date().toISOString().split('T')[0],
+          : '',
         isRecurring: Boolean(taskToEdit.isRecurring),
         recurrenceType: taskToEdit.recurrenceType || 'Daily',
       });
@@ -38,18 +38,19 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
         description: '',
         category: categories[0]?.name || 'General',
         priority: 'Medium',
-        dueDate: new Date().toISOString().split('T')[0],
+        // Pre-fill with the calendar-selected date if provided
+        dueDate: defaultDate || '',
         isRecurring: false,
         recurrenceType: 'Daily',
       });
     }
     setErrors({});
-  }, [taskToEdit, isOpen, categories]);
+  }, [taskToEdit, isOpen, categories, defaultDate]);
 
   const validate = () => {
     const errs = {};
     if (!formData.title.trim()) {
-      errs.title = 'Task title is required';
+      errs.title = 'Habit title is required';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -78,17 +79,17 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={taskToEdit ? 'Edit Task' : 'Create New Task'}
+      title={taskToEdit ? 'Edit Habit' : 'Add New Habit'}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Task Title */}
+        {/* Habit Title */}
         <div>
           <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-            Task Title <span className="text-rose-500">*</span>
+            Habit Title <span className="text-rose-500">*</span>
           </label>
           <input
             type="text"
-            placeholder="e.g., Complete UI Mockups"
+            placeholder="e.g., Morning Workout, Read 30 mins..."
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             className={`w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none transition-all ${
@@ -108,11 +109,11 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
         {/* Description */}
         <div>
           <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-            Description
+            Description / Notes
           </label>
           <textarea
             rows="3"
-            placeholder="Add relevant notes or instructions..."
+            placeholder="Add relevant notes, goals, or instructions..."
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-brand-500 transition-all resize-none"
@@ -163,40 +164,35 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
           </div>
         </div>
 
-        {/* Due Date (Optional) */}
+        {/* Due Date — Calendar-aware pre-filled field */}
         <div>
           <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-            Due Date <span className="text-gray-400 font-normal">(Optional - Resets daily at 12 AM)</span>
+            Due Date
           </label>
-
           <div className="relative">
             <Calendar className="w-4 h-4 absolute left-3.5 top-3 text-gray-400 pointer-events-none" />
             <input
               type="date"
-              value={formData.dueDate}
+              value={formData.dueDate || ''}
               onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-              className={`w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border text-sm font-medium text-gray-900 dark:text-white focus:outline-none transition-all ${
-                errors.dueDate
-                  ? 'border-rose-500 ring-1 ring-rose-500'
-                  : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'
-              }`}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500 transition-all cursor-pointer"
             />
           </div>
-          {errors.dueDate && (
-            <p className="flex items-center gap-1 mt-1 text-xs text-rose-500">
-              <AlertCircle className="w-3.5 h-3.5" />
-              {errors.dueDate}
+          {defaultDate && !taskToEdit && (
+            <p className="mt-1 text-[11px] text-brand-500 dark:text-brand-400 flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              Date pre-filled from calendar selection
             </p>
           )}
         </div>
 
-        {/* Recurring Task Section */}
+        {/* Recurring Habit Section */}
         <div className="p-4 rounded-xl bg-gray-100/60 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/60 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Repeat className="w-4 h-4 text-brand-500" />
               <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                Recurring Task
+                Recurring Habit
               </span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -247,7 +243,7 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-md hover:shadow-glow transition-all disabled:opacity-50"
           >
             <Sparkles className="w-4 h-4" />
-            <span>{taskToEdit ? 'Update Task' : 'Save Task'}</span>
+            <span>{taskToEdit ? 'Update Habit' : 'Save Habit'}</span>
           </button>
         </div>
       </form>

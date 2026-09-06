@@ -7,7 +7,7 @@ import {
   BarChart3,
   FolderKanban,
   Settings,
-  CheckCircle2,
+  Zap,
   Plus,
   Sparkles,
 } from 'lucide-react';
@@ -15,7 +15,7 @@ import {
 export const Sidebar = ({ onOpenAddTask }) => {
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'My Tasks', path: '/tasks', icon: CheckSquare },
+    { name: 'My Habits', path: '/tasks', icon: CheckSquare },
     { name: 'Calendar', path: '/calendar', icon: CalendarIcon },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
     { name: 'Categories', path: '/categories', icon: FolderKanban },
@@ -27,25 +27,25 @@ export const Sidebar = ({ onOpenAddTask }) => {
       {/* Brand Logo */}
       <div className="flex items-center gap-3 px-2 py-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-glow">
-          <CheckCircle2 className="w-6 h-6" />
+          <Zap className="w-6 h-6" />
         </div>
         <div>
           <h1 className="font-extrabold text-lg text-gray-900 dark:text-white font-outfit leading-tight tracking-tight">
-            TaskManager
+            HabitTracker
           </h1>
           <span className="text-[11px] font-semibold text-brand-600 dark:text-brand-400 tracking-widest uppercase">
-            PRO PWA
+            Pro · PWA
           </span>
         </div>
       </div>
 
-      {/* Quick Add Task Button */}
+      {/* Quick Add Habit Button */}
       <button
         onClick={onOpenAddTask}
         className="w-full mb-6 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-md hover:shadow-glow transition-all transform hover:-translate-y-0.5 active:translate-y-0"
       >
         <Plus className="w-4 h-4 stroke-[2.5]" />
-        <span>Create Task</span>
+        <span>Add Habit</span>
       </button>
 
       {/* Navigation Links */}
@@ -78,7 +78,7 @@ export const Sidebar = ({ onOpenAddTask }) => {
         </div>
         <h4 className="text-xs font-bold text-white mb-1 font-outfit">PWA Offline Ready</h4>
         <p className="text-[11px] text-gray-400 leading-snug">
-          Install app on mobile or desktop for seamless offline productivity.
+          Install on mobile or desktop for seamless offline habit tracking.
         </p>
       </div>
     </aside>

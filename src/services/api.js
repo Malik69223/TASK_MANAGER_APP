@@ -10,10 +10,9 @@ const STORAGE_KEYS = {
   CATEGORIES: 'taskmanager_categories_data',
 };
 
-// Initialize Mock Local Storage - Always ensure clean empty tasks for fresh user entries
+// Initialize Mock Local Storage
 const initMockStorage = () => {
-  const existingTasks = localStorage.getItem(STORAGE_KEYS.TASKS);
-  if (!existingTasks || existingTasks.includes('task_1') || existingTasks.includes('System Architecture')) {
+  if (!localStorage.getItem(STORAGE_KEYS.TASKS)) {
     localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify([]));
   }
   if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
@@ -58,9 +57,6 @@ const mockHandler = async (endpoint, options) => {
   const method = options.method || 'GET';
   const body = options.body ? JSON.parse(options.body) : {};
 
-  // Delay simulation for realistic smooth UI loading states
-  await new Promise((resolve) => setTimeout(resolve, 250));
-
   // --- AUTH MOCK ---
   if (endpoint === '/auth/login') {
     const user = { ...INITIAL_USER, email: body.email || INITIAL_USER.email };
@@ -91,7 +87,13 @@ const mockHandler = async (endpoint, options) => {
   }
 
   // --- TASKS MOCK ---
-  let tasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS) || '[]');
+  let tasks = [];
+  try {
+    tasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS) || '[]');
+    if (!Array.isArray(tasks)) tasks = [];
+  } catch (e) {
+    tasks = [];
+  }
 
   if (endpoint.startsWith('/tasks')) {
     if (method === 'GET') {
@@ -152,7 +154,13 @@ const mockHandler = async (endpoint, options) => {
   }
 
   // --- CATEGORIES MOCK ---
-  let categories = JSON.parse(localStorage.getItem(STORAGE_KEYS.CATEGORIES) || '[]');
+  let categories = [];
+  try {
+    categories = JSON.parse(localStorage.getItem(STORAGE_KEYS.CATEGORIES) || '[]');
+    if (!Array.isArray(categories) || categories.length === 0) categories = INITIAL_CATEGORIES;
+  } catch (e) {
+    categories = INITIAL_CATEGORIES;
+  }
 
   if (endpoint.startsWith('/categories')) {
     if (method === 'GET') {
@@ -193,9 +201,12 @@ const mockHandler = async (endpoint, options) => {
     const completedTasks = tasks.filter((t) => t.status === 'Completed').length;
     const pendingTasks = tasks.filter((t) => t.status === 'Pending').length;
     const now = new Date();
-    const overdueTasks = tasks.filter(
-      (t) => t.status === 'Pending' && new Date(t.dueDate) < now
-    ).length;
+    const overdueTasks = tasks.filter((t) => {
+      if (t.status !== 'Pending' || !t.dueDate) return false;
+      const due = new Date(t.dueDate);
+      due.setHours(23, 59, 59, 999);
+      return now > due;
+    }).length;
 
     if (endpoint === '/analytics/dashboard') {
       return {

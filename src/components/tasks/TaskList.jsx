@@ -36,15 +36,21 @@ export const TaskList = ({ onEditTask }) => {
       if (!matchTitle && !matchDesc && !matchCat) return false;
     }
 
+    // Helper for 12 AM midnight overdue rule
+    const checkIsOverdue = (t) => {
+      if (t.status !== 'Pending' || !t.dueDate) return false;
+      const due = new Date(t.dueDate);
+      due.setHours(23, 59, 59, 999);
+      return new Date() > due;
+    };
+
     // Status filter
-    if (statusFilter === 'Pending' && task.status !== 'Pending') return false;
+    if (statusFilter === 'Pending') {
+      if (task.status !== 'Pending' || checkIsOverdue(task)) return false;
+    }
     if (statusFilter === 'Completed' && task.status !== 'Completed') return false;
     if (statusFilter === 'Overdue') {
-      const isOverdue =
-        task.status === 'Pending' &&
-        task.dueDate &&
-        new Date(task.dueDate) < new Date();
-      if (!isOverdue) return false;
+      if (!checkIsOverdue(task)) return false;
     }
 
     // Priority filter
