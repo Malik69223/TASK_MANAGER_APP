@@ -2,8 +2,9 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ── Default Brand Theme: Indigo/Purple ───────────────────────────────────── */
 @theme {
-  --color-brand-50: #eef2ff;
+  --color-brand-50:  #eef2ff;
   --color-brand-100: #e0e7ff;
   --color-brand-200: #c7d2fe;
   --color-brand-300: #a5b4fc;
@@ -18,7 +19,40 @@
   --font-outfit: 'Outfit', 'Inter', system-ui, sans-serif;
 }
 
-/* Glassmorphism utility classes */
+/* ── Pink+Red Theme Override ─────────────────────────────────────────────── */
+/* Applied when <html> has data-color-theme="rose" */
+[data-color-theme="rose"] {
+  --color-brand-50:  #fff1f2;
+  --color-brand-100: #ffe4e6;
+  --color-brand-200: #fecdd3;
+  --color-brand-300: #fda4af;
+  --color-brand-400: #fb7185;
+  --color-brand-500: #f43f5e;
+  --color-brand-600: #e11d48;
+  --color-brand-700: #be123c;
+  --color-brand-800: #9f1239;
+  --color-brand-900: #881337;
+  --color-brand-950: #4c0519;
+}
+
+/* Pink+Red specific glow */
+[data-color-theme="rose"] .shadow-glow,
+[data-color-theme="rose"] .hover\:shadow-glow:hover {
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+}
+
+/* Pink+Red sidebar gradient background in dark mode */
+[data-color-theme="rose"].dark body,
+[data-color-theme="rose"] .dark body {
+  background-color: #130810;
+}
+
+/* Pink+Red scrollbar accent */
+[data-color-theme="rose"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 63, 94, 0.7);
+}
+
+/* ── Glassmorphism Utilities ─────────────────────────────────────────────── */
 .glass-panel {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px);
@@ -49,44 +83,48 @@
   box-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.3);
 }
 
-/* Custom Smooth Scrollbar */
+/* Pink+Red glass-card tint in dark mode */
+[data-color-theme="rose"] .dark .glass-card,
+[data-color-theme="rose"].dark .glass-card {
+  background: rgba(25, 10, 15, 0.85);
+  border: 1px solid rgba(244, 63, 94, 0.1);
+}
+
+/* ── Custom Smooth Scrollbar ─────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
   background: rgba(156, 163, 175, 0.4);
   border-radius: 9999px;
 }
-
 .dark ::-webkit-scrollbar-thumb {
   background: rgba(75, 85, 99, 0.4);
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(99, 102, 241, 0.7);
 }
 
-/* Custom Micro Animations */
+/* ── Micro Animations ────────────────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulseGlow {
   0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
+  50%       { opacity: 1;   transform: scale(1.05); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-pulse-glow {
-  animation: pulseGlow 3s ease-in-out infinite;
-}
+.animate-fade-in   { animation: fadeIn   0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
+.animate-slide-up  { animation: slideUp  0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
