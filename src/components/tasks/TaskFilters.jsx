@@ -100,9 +100,6 @@ export const TaskFilters = () => {
               onChange={(e) => setSortBy(e.target.value)}
               className="bg-transparent text-gray-900 dark:text-white font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="dueDate" className="dark:bg-gray-800 text-gray-900 dark:text-white">
-                Due Date
-              </option>
               <option value="priority" className="dark:bg-gray-800 text-gray-900 dark:text-white">
                 Priority
               </option>

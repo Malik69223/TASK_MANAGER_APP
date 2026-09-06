@@ -27,7 +27,7 @@ export const TaskProvider = ({ children }) => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
-  const [sortBy, setSortBy] = useState('dueDate');
+  const [sortBy, setSortBy] = useState('title');
   const [sortOrder, setSortOrder] = useState('asc');
 
   // Trigger Toast Notification
