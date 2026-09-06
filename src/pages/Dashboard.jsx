@@ -170,7 +170,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
             <div className="p-5 rounded-2xl glass-card border border-gray-200/80 dark:border-gray-800 flex items-center justify-between">
               <div>
                 <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">
-                  Total Tasks
+                  Total Habits
                 </span>
                 <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white font-outfit">
                   {stats.totalTasks}
@@ -185,7 +185,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
             <div className="p-5 rounded-2xl glass-card border border-gray-200/80 dark:border-gray-800 flex items-center justify-between">
               <div>
                 <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">
-                  Completed
+                  Completed Habits
                 </span>
                 <span className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 font-outfit">
                   {stats.completedTasks}
@@ -200,7 +200,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
             <div className="p-5 rounded-2xl glass-card border border-gray-200/80 dark:border-gray-800 flex items-center justify-between">
               <div>
                 <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">
-                  Pending
+                  Pending Habits
                 </span>
                 <span className="text-2xl sm:text-3xl font-extrabold text-sky-600 dark:text-sky-400 font-outfit">
                   {stats.pendingTasks}
@@ -215,7 +215,7 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
             <div className="p-5 rounded-2xl glass-card border border-gray-200/80 dark:border-gray-800 flex items-center justify-between">
               <div>
                 <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">
-                  Overdue
+                  Overdue Habits
                 </span>
                 <span className="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400 font-outfit">
                   {stats.overdueTasks}
