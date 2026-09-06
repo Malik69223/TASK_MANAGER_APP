@@ -256,10 +256,10 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-bold text-gray-900 dark:text-white font-outfit">
-                Weekly Habit Completion
+                Weekly Habit Wave
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Habits completed + completion % over the last 7 days
+                Habits completed each day — rises when you complete more 📈
               </p>
             </div>
             <a

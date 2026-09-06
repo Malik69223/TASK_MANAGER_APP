@@ -1,32 +1,42 @@
 import React from 'react';
 import {
-  ComposedChart,
-  Bar,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
+  ReferenceLine,
 } from 'recharts';
+
+// Custom dot to highlight today (last data point)
+const CustomDot = (props) => {
+  const { cx, cy, index, data } = props;
+  if (index === (data?.length ?? 0) - 1) {
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={7} fill="#6366f1" stroke="#fff" strokeWidth={2.5} />
+        <circle cx={cx} cy={cy} r={12} fill="#6366f1" fillOpacity={0.2} />
+      </g>
+    );
+  }
+  return <circle cx={cx} cy={cy} r={4} fill="#6366f1" stroke="#fff" strokeWidth={2} />;
+};
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
+    const val = payload[0]?.value ?? 0;
     return (
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-3 shadow-2xl min-w-[140px]">
-        <p className="text-xs font-bold text-gray-300 mb-2">{label}</p>
-        {payload.map((entry, i) => (
-          <div key={i} className="flex items-center justify-between gap-3 text-xs mb-1">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-              <span className="text-gray-400">{entry.name}</span>
-            </span>
-            <span className="font-bold text-white">
-              {entry.name === 'Completion %' ? `${entry.value}%` : entry.value}
-            </span>
-          </div>
-        ))}
+      <div className="bg-gray-900/95 backdrop-blur border border-indigo-500/30 rounded-2xl p-4 shadow-2xl min-w-[130px]">
+        <p className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider mb-2">{label}</p>
+        <div className="flex items-end gap-2">
+          <span className="text-3xl font-extrabold text-white font-outfit">{val}</span>
+          <span className="text-xs text-gray-400 mb-1">habit{val !== 1 ? 's' : ''}</span>
+        </div>
+        <p className="text-[10px] text-indigo-400 mt-1">
+          {val === 0 ? 'No habits completed' : val >= 5 ? '🔥 Great streak!' : '✅ Keep going!'}
+        </p>
       </div>
     );
   }
@@ -34,81 +44,83 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export const WeeklyChart = ({ data = [] }) => {
-  // Ensure rate field is present
-  const enriched = data.map((d) => ({
-    ...d,
-    rate: d.rate ?? (d.total > 0 ? Math.round((d.completed / d.total) * 100) : 0),
-  }));
+  const maxVal = Math.max(...data.map((d) => d.completed ?? 0), 1);
+  // avg line
+  const totalCompleted = data.reduce((s, d) => s + (d.completed ?? 0), 0);
+  const avgCompleted = data.length > 0 ? +(totalCompleted / data.length).toFixed(1) : 0;
 
   return (
     <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={enriched} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
+        <AreaChart
+          data={data}
+          margin={{ top: 16, right: 16, left: -12, bottom: 0 }}
+        >
           <defs>
-            <linearGradient id="weeklyBarGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity={0.9} />
-              <stop offset="100%" stopColor="#818cf8" stopOpacity={0.6} />
+            <linearGradient id="wkGradTop" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#6366f1" stopOpacity={0.55} />
+              <stop offset="60%" stopColor="#818cf8" stopOpacity={0.15} />
+              <stop offset="100%" stopColor="#6366f1" stopOpacity={0.0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.15} vertical={false} />
+
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#374151"
+            opacity={0.18}
+            vertical={false}
+          />
+
+          {/* Average reference line */}
+          {avgCompleted > 0 && (
+            <ReferenceLine
+              y={avgCompleted}
+              stroke="#f59e0b"
+              strokeDasharray="5 4"
+              strokeWidth={1.5}
+              label={{
+                value: `avg ${avgCompleted}`,
+                position: 'right',
+                fontSize: 10,
+                fill: '#f59e0b',
+                fontWeight: 700,
+              }}
+            />
+          )}
+
           <XAxis
             dataKey="day"
-            stroke="#6b7280"
+            stroke="transparent"
             fontSize={11}
             tickLine={false}
             axisLine={false}
-            tick={{ fill: '#9ca3af', fontWeight: 600 }}
+            tick={{ fill: '#9ca3af', fontWeight: 700 }}
           />
           <YAxis
-            yAxisId="count"
-            orientation="left"
-            stroke="#6b7280"
+            stroke="transparent"
             fontSize={11}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
             tick={{ fill: '#9ca3af' }}
-            width={28}
+            width={24}
+            domain={[0, Math.ceil(maxVal * 1.3) || 5]}
           />
-          <YAxis
-            yAxisId="pct"
-            orientation="right"
-            stroke="#6b7280"
-            fontSize={11}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(v) => `${v}%`}
-            domain={[0, 100]}
-            tick={{ fill: '#9ca3af' }}
-            width={38}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend
-            verticalAlign="top"
-            height={32}
-            iconType="circle"
-            iconSize={8}
-            wrapperStyle={{ fontSize: '11px', color: '#9ca3af', paddingBottom: '8px' }}
-          />
-          <Bar
-            yAxisId="count"
+
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 3' }} />
+
+          <Area
+            type="monotoneX"
             dataKey="completed"
-            name="Completed"
-            fill="url(#weeklyBarGrad)"
-            radius={[6, 6, 0, 0]}
-            maxBarSize={36}
+            stroke="#6366f1"
+            strokeWidth={3}
+            fill="url(#wkGradTop)"
+            dot={<CustomDot data={data} />}
+            activeDot={false}
+            animationDuration={900}
+            animationEasing="ease-out"
           />
-          <Line
-            yAxisId="pct"
-            type="monotone"
-            dataKey="rate"
-            name="Completion %"
-            stroke="#f59e0b"
-            strokeWidth={2.5}
-            dot={{ r: 4, fill: '#f59e0b', strokeWidth: 2, stroke: '#111827' }}
-            activeDot={{ r: 6 }}
-          />
-        </ComposedChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

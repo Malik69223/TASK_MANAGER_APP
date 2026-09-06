@@ -201,10 +201,10 @@ export const Analytics = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-bold text-gray-900 dark:text-white font-outfit">
-                Weekly Completion
+                Weekly Habit Wave
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Habits done (bars) + completion % (line) — last 7 days
+                Habits completed each day over last 7 days — graph rises with your progress
               </p>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold">
@@ -238,10 +238,10 @@ export const Analytics = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-bold text-gray-900 dark:text-white font-outfit">
-                Monthly Progress
+                Monthly Habit Wave
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Completed vs Pending + completion % across this month
+                Completed (green) vs Pending (amber) — daily wave across the month
               </p>
             </div>
           </div>

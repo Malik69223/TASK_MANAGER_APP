@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   CheckSquare,
-  Calendar as CalendarIcon,
   BarChart3,
   FolderKanban,
   Settings,
@@ -13,7 +12,6 @@ export const BottomNav = () => {
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Habits', path: '/tasks', icon: CheckSquare },
-    { name: 'Calendar', path: '/calendar', icon: CalendarIcon },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
     { name: 'Categories', path: '/categories', icon: FolderKanban },
     { name: 'Settings', path: '/settings', icon: Settings },
