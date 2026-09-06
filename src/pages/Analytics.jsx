@@ -217,17 +217,16 @@ export const Analytics = () => {
 
         {/* Status Pie Chart */}
         <div className="p-6 rounded-3xl glass-card border border-gray-200/80 dark:border-gray-800">
-          <h3 className="text-base font-bold text-gray-900 dark:text-white font-outfit mb-1">
-            Status Breakdown
-          </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-            Completed vs Pending vs Overdue — with %
-          </p>
-          <StatusPieChart
-            completed={stats.completedTasks}
-            pending={stats.pendingTasks}
-            overdue={stats.overdueTasks}
-          />
+            <h3 className="text-base font-bold text-gray-900 dark:text-white font-outfit">
+              Habit Status
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-4">
+              Completed vs Pending — with %
+            </p>
+            <StatusPieChart 
+              completed={stats.completedTasks} 
+              pending={stats.pendingTasks} 
+            />
         </div>
       </div>
 

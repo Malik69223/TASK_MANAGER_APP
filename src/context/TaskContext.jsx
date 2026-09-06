@@ -14,7 +14,7 @@ export const TaskProvider = ({ children }) => {
     totalTasks: 0,
     completedTasks: 0,
     pendingTasks: 0,
-    overdueTasks: 0,
+
     dailyProductivityPercentage: 0,
     productivityStreak: 0,
   });
@@ -99,15 +99,7 @@ export const TaskProvider = ({ children }) => {
     const completedTasks = taskList.filter((t) => t.status === 'Completed').length;
     
     const now = new Date();
-    const isTaskOverdue = (t) => {
-      if (t.status !== 'Pending' || !t.dueDate) return false;
-      const due = new Date(t.dueDate);
-      due.setHours(23, 59, 59, 999);
-      return now > due;
-    };
-
-    const overdueTasks = taskList.filter(isTaskOverdue).length;
-    const pendingTasks = taskList.filter((t) => t.status === 'Pending' && !isTaskOverdue(t)).length;
+    const pendingTasks = taskList.filter((t) => t.status === 'Pending').length;
 
     const dailyProductivityPercentage =
       totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -118,7 +110,7 @@ export const TaskProvider = ({ children }) => {
       totalTasks,
       completedTasks,
       pendingTasks,
-      overdueTasks,
+
       dailyProductivityPercentage,
       productivityStreak: currentStreak,
     });

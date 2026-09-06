@@ -389,25 +389,7 @@ export const Settings = () => {
           )}
         </div>
 
-        {/* Due-Date Alerts */}
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
-              <Shield className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                Due-Date Alerts
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Notified 1 day before and on the due date
-              </p>
-            </div>
-          </div>
-          <span className="text-xs font-bold text-emerald-500 px-2.5 py-1 rounded-full bg-emerald-500/10">
-            Always On
-          </span>
-        </div>
+
 
         {/* Test Notification Button */}
         <div className="pt-2 border-t border-gray-100 dark:border-gray-800">

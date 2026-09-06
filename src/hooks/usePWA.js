@@ -181,61 +181,8 @@ export const usePWA = () => {
 
   // ─── Task Due-Date Notifications ─────────────────────────────────────────────
   const checkAndSendTaskNotifications = useCallback((taskList) => {
-    if (
-      typeof window === 'undefined' ||
-      !('Notification' in window) ||
-      Notification.permission !== 'granted' ||
-      !Array.isArray(taskList)
-    ) return;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    let notified = {};
-    try {
-      notified = JSON.parse(localStorage.getItem('taskmanager_notified_tasks') || '{}');
-    } catch (e) {}
-
-    let updated = false;
-
-    taskList.forEach((task) => {
-      if (task.status !== 'Pending' || !task.dueDate) return;
-
-      const due = new Date(task.dueDate);
-      due.setHours(0, 0, 0, 0);
-      const diffDays = Math.round((due.getTime() - today.getTime()) / (1000 * 3600 * 24));
-
-      if (diffDays === 1 && !notified[`1day_${task._id}`]) {
-        new Notification('⏰ Habit Due Tomorrow!', {
-          body: `"${task.title}" is due tomorrow — don't miss it! 💪`,
-          icon: '/favicon.svg',
-          tag: `1day_${task._id}`,
-        });
-        notified[`1day_${task._id}`] = true;
-        updated = true;
-      } else if (diffDays === 0 && !notified[`today_${task._id}`]) {
-        new Notification('🔔 Habit Due Today!', {
-          body: `"${task.title}" needs to be completed today — you've got this! 🌟`,
-          icon: '/favicon.svg',
-          tag: `today_${task._id}`,
-          requireInteraction: true,
-        });
-        notified[`today_${task._id}`] = true;
-        updated = true;
-      } else if (diffDays < 0 && !notified[`overdue_${task._id}`]) {
-        new Notification('🚨 Overdue Habit!', {
-          body: `"${task.title}" is overdue. Complete it now to get back on track!`,
-          icon: '/favicon.svg',
-          tag: `overdue_${task._id}`,
-        });
-        notified[`overdue_${task._id}`] = true;
-        updated = true;
-      }
-    });
-
-    if (updated) {
-      localStorage.setItem('taskmanager_notified_tasks', JSON.stringify(notified));
-    }
+    // Due dates have been removed, so this is left intentionally empty
+    // to satisfy TaskContext calling it, while keeping daily reminders active.
   }, []);
 
   return {

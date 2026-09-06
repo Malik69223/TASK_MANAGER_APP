@@ -46,13 +46,12 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-export const StatusPieChart = ({ completed = 0, pending = 0, overdue = 0 }) => {
-  const total = completed + pending + overdue;
+export const StatusPieChart = ({ completed = 0, pending = 0 }) => {
+  const total = completed + pending;
 
   const rawData = [
     { name: 'Completed', value: completed, color: '#10b981' },
     { name: 'Pending', value: pending, color: '#6366f1' },
-    { name: 'Overdue', value: overdue, color: '#f43f5e' },
   ].filter((item) => item.value > 0).map((item) => ({ ...item, total }));
 
   if (rawData.length === 0) {

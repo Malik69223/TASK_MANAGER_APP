@@ -17,7 +17,7 @@ export const TaskFilters = () => {
     categories,
   } = useTasks();
 
-  const statuses = ['All', 'Pending', 'Completed', 'Overdue'];
+  const statuses = ['All', 'Pending', 'Completed'];
   const priorities = ['All', 'Low', 'Medium', 'High'];
 
   return (

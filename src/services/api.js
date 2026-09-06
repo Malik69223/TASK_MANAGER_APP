@@ -109,7 +109,6 @@ const mockHandler = async (endpoint, options) => {
         category: body.category || 'General',
         priority: body.priority || 'Medium',
         status: 'Pending',
-        dueDate: body.dueDate,
         isRecurring: Boolean(body.isRecurring),
         recurrenceType: body.isRecurring ? (body.recurrenceType || 'Daily') : 'None',
         createdAt: new Date().toISOString(),
@@ -200,13 +199,6 @@ const mockHandler = async (endpoint, options) => {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === 'Completed').length;
     const pendingTasks = tasks.filter((t) => t.status === 'Pending').length;
-    const now = new Date();
-    const overdueTasks = tasks.filter((t) => {
-      if (t.status !== 'Pending' || !t.dueDate) return false;
-      const due = new Date(t.dueDate);
-      due.setHours(23, 59, 59, 999);
-      return now > due;
-    }).length;
 
     if (endpoint === '/analytics/dashboard') {
       return {
@@ -215,7 +207,6 @@ const mockHandler = async (endpoint, options) => {
           totalTasks,
           completedTasks,
           pendingTasks,
-          overdueTasks,
           dailyProductivityPercentage: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
           productivityStreak: completedTasks > 0 ? 1 : 0,
         },
@@ -235,7 +226,7 @@ const mockHandler = async (endpoint, options) => {
           (t) => t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dateStr
         ).length;
         const total = tasks.filter(
-          (t) => new Date(t.dueDate).toISOString().split('T')[0] === dateStr
+          (t) => t.createdAt && new Date(t.createdAt).toISOString().split('T')[0] === dateStr
         ).length;
         weeklyData.push({
           day: dayName,
@@ -260,7 +251,7 @@ const mockHandler = async (endpoint, options) => {
           (t) => t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dateStr
         ).length;
         const pending = tasks.filter(
-          (t) => t.status === 'Pending' && new Date(t.dueDate).toISOString().split('T')[0] === dateStr
+          (t) => t.status === 'Pending' && t.createdAt && new Date(t.createdAt).toISOString().split('T')[0] === dateStr
         ).length;
         monthlyData.push({
           day: `Day ${day}`,

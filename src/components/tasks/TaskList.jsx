@@ -36,22 +36,9 @@ export const TaskList = ({ onEditTask }) => {
       if (!matchTitle && !matchDesc && !matchCat) return false;
     }
 
-    // Helper for 12 AM midnight overdue rule
-    const checkIsOverdue = (t) => {
-      if (t.status !== 'Pending' || !t.dueDate) return false;
-      const due = new Date(t.dueDate);
-      due.setHours(23, 59, 59, 999);
-      return new Date() > due;
-    };
-
     // Status filter
-    if (statusFilter === 'Pending') {
-      if (task.status !== 'Pending' || checkIsOverdue(task)) return false;
-    }
+    if (statusFilter === 'Pending' && task.status !== 'Pending') return false;
     if (statusFilter === 'Completed' && task.status !== 'Completed') return false;
-    if (statusFilter === 'Overdue') {
-      if (!checkIsOverdue(task)) return false;
-    }
 
     // Priority filter
     if (priorityFilter !== 'All' && task.priority !== priorityFilter) return false;
@@ -64,9 +51,7 @@ export const TaskList = ({ onEditTask }) => {
 
   // Sort tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
-    if (sortBy === 'dueDate') {
-      return new Date(a.dueDate || 0) - new Date(b.dueDate || 0);
-    }
+
     if (sortBy === 'priority') {
       const order = { High: 3, Medium: 2, Low: 1 };
       return (order[b.priority] || 0) - (order[a.priority] || 0);
@@ -88,8 +73,8 @@ export const TaskList = ({ onEditTask }) => {
         </h3>
         <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm">
           {searchQuery
-            ? `No tasks matching "${searchQuery}". Try clearing search or filters.`
-            : 'You are all caught up! Click "Create Task" to add your next task.'}
+            ? `No habits matching "${searchQuery}". Try clearing search or filters.`
+            : 'You are all caught up! Click "Add New Habit" to add your next habit.'}
         </p>
       </div>
     );

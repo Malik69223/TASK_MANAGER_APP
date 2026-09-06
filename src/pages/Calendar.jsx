@@ -42,8 +42,8 @@ export const Calendar = ({ onOpenAddTask, onEditTask }) => {
   // Group tasks by Date ISO string (YYYY-MM-DD)
   const taskMap = {};
   tasks.forEach((task) => {
-    if (task.dueDate) {
-      const dStr = new Date(task.dueDate).toISOString().split('T')[0];
+    if (task.createdAt) {
+      const dStr = new Date(task.createdAt).toISOString().split('T')[0];
       if (!taskMap[dStr]) taskMap[dStr] = [];
       taskMap[dStr].push(task);
     }

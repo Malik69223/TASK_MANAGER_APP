@@ -102,9 +102,6 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
   });
 
   const recentTasks = tasks.slice(0, 3);
-  const upcomingTasks = tasks
-    .filter((t) => t.status === 'Pending' && new Date(t.dueDate) >= new Date())
-    .slice(0, 3);
 
   return (
     <div className="space-y-6 pb-12">
@@ -210,21 +207,6 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
                 <Clock className="w-6 h-6" />
               </div>
             </div>
-
-            {/* Overdue Tasks */}
-            <div className="p-5 rounded-2xl glass-card border border-gray-200/80 dark:border-gray-800 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">
-                  Overdue Habits
-                </span>
-                <span className="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400 font-outfit">
-                  {stats.overdueTasks}
-                </span>
-              </div>
-              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-            </div>
           </>
         )}
       </div>
@@ -298,31 +280,6 @@ export const Dashboard = ({ onOpenAddTask, onEditTask }) => {
               ))
             ) : (
               <p className="text-xs text-gray-400 text-center py-6">No habits added yet. Start building your streak! 🔥</p>
-            )}
-          </div>
-        </div>
-
-        {/* Upcoming Tasks */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white font-outfit">
-              Upcoming Habits
-            </h3>
-            <a
-              href="/calendar"
-              className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline"
-            >
-              Calendar View
-            </a>
-          </div>
-
-          <div className="space-y-3">
-            {upcomingTasks.length > 0 ? (
-              upcomingTasks.map((t) => (
-                <TaskCard key={t._id} task={t} onEdit={onEditTask} />
-              ))
-            ) : (
-              <p className="text-xs text-gray-400 text-center py-6">No upcoming habits scheduled. Use the Calendar to plan! 📅</p>
             )}
           </div>
         </div>
