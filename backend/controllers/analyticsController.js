@@ -105,6 +105,9 @@ const getWeeklyAnalytics = async (req, res, next) => {
 
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+    let cumulativeCompleted = 0;
+    let cumulativeTotal = 0;
+
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
@@ -119,13 +122,16 @@ const getWeeklyAnalytics = async (req, res, next) => {
         (t) => new Date(t.dueDate).toISOString().split('T')[0] === dateStr
       ).length;
 
-      const rate = createdOrDueCount > 0 ? Math.round((completedCount / createdOrDueCount) * 100) : (completedCount > 0 ? 100 : 0);
+      cumulativeCompleted += completedCount;
+      cumulativeTotal += createdOrDueCount;
+
+      const rate = cumulativeTotal > 0 ? Math.round((cumulativeCompleted / cumulativeTotal) * 100) : (cumulativeCompleted > 0 ? 100 : 0);
 
       weeklyData.push({
         day: dayName,
         date: dateStr,
-        completed: completedCount,
-        total: Math.max(createdOrDueCount, completedCount),
+        completed: cumulativeCompleted,
+        total: Math.max(cumulativeTotal, cumulativeCompleted),
         rate: Math.min(rate, 100),
       });
     }

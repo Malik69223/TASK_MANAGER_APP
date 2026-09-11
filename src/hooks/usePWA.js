@@ -72,7 +72,24 @@ export const usePWA = () => {
     };
   }, []);
 
-  // ─── Scheduled Daily Reminder Engine ───────────────────────────────────────
+  // ─── Helper to Show Notifications via Service Worker ────────────────────────
+  const showNotification = async (title, options) => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.ready;
+        if (registration && registration.showNotification) {
+          await registration.showNotification(title, options);
+          return;
+        }
+      }
+      // Fallback for browsers without Service Worker support
+      new Notification(title, options);
+    } catch (e) {
+      console.warn('Notification error:', e);
+    }
+  };
+
+  // ─── Scheduled Daily Reminder Engine (2-3 times a day) ───────────────────
   useEffect(() => {
     if (reminderIntervalRef.current) clearInterval(reminderIntervalRef.current);
 
@@ -85,37 +102,32 @@ export const usePWA = () => {
         Notification.permission !== 'granted'
       ) return;
 
-      const now = new Date();
-      const [hh, mm] = reminderTime.split(':').map(Number);
-      const todayKey = now.toISOString().split('T')[0];
-      const firedKey = `habittracker_daily_reminder_${todayKey}`;
+      const now = Date.now();
+      const lastFired = parseInt(localStorage.getItem('habittracker_last_reminder') || '0', 10);
+      const hoursSinceLast = (now - lastFired) / (1000 * 60 * 60);
 
-      // Fire if current time matches reminder time (within 1-minute window)
-      if (now.getHours() === hh && now.getMinutes() === mm) {
-        if (!localStorage.getItem(firedKey)) {
-          const { title, body } = getReminder();
-          try {
-            new Notification(title, {
-              body,
-              icon: '/favicon.svg',
-              badge: '/favicon.svg',
-              tag: `daily-reminder-${todayKey}`,
-              requireInteraction: true,
-            });
-            localStorage.setItem(firedKey, '1');
-          } catch (e) {}
-        }
+      // Fire notification if it's been at least 8 hours since the last one (approx 3 times a day)
+      if (hoursSinceLast >= 8) {
+        const { title, body } = getReminder();
+        showNotification(title, {
+          body,
+          icon: '/favicon.svg',
+          badge: '/favicon.svg',
+          tag: `realtime-reminder-${now}`,
+          requireInteraction: true,
+        });
+        localStorage.setItem('habittracker_last_reminder', now.toString());
       }
     };
 
-    // Check every 30 seconds so we catch the 1-minute window reliably
-    reminderIntervalRef.current = setInterval(checkAndFire, 30_000);
-    checkAndFire(); // also fire immediately on mount
+    // Check every 5 minutes while the app is open
+    reminderIntervalRef.current = setInterval(checkAndFire, 5 * 60_000);
+    checkAndFire(); // also fire immediately on mount if 8 hours have passed
 
     return () => {
       if (reminderIntervalRef.current) clearInterval(reminderIntervalRef.current);
     };
-  }, [reminderEnabled, reminderTime]);
+  }, [reminderEnabled]);
 
   // ─── PWA Install ────────────────────────────────────────────────────────────
   const installPWA = async () => {
@@ -135,7 +147,7 @@ export const usePWA = () => {
       const permission = await Notification.requestPermission();
       setNotificationPermission(permission);
       if (permission === 'granted') {
-        new Notification('🌸 Habit Tracker Notifications Active!', {
+        showNotification('🌸 Habit Tracker Notifications Active!', {
           body: "You'll now receive daily habit reminders even when the app is closed 🔥",
           icon: '/favicon.svg',
           tag: 'welcome-notification',
@@ -153,7 +165,7 @@ export const usePWA = () => {
       'Notification' in window &&
       Notification.permission === 'granted'
     ) {
-      new Notification(title, {
+      showNotification(title, {
         body,
         icon: '/favicon.svg',
         badge: '/favicon.svg',

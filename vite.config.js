@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Personal Task Manager',
-        short_name: 'TaskManager',
-        description: 'Modern, premium productivity dashboard and task manager',
+        name: 'Habit Tracker Pro',
+        short_name: 'Habit Tracker',
+        description: 'Modern, premium habit tracker and productivity dashboard',
         theme_color: '#6366f1',
         background_color: '#0b0f19',
         display: 'standalone',

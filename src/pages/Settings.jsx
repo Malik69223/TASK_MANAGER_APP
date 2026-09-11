@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { usePWA } from '../hooks/usePWA';
@@ -39,6 +40,7 @@ const Toggle = ({ checked, onChange, id }) => (
 );
 
 export const Settings = () => {
+  const navigate = useNavigate();
   const { user, updateUserProfile } = useAuth();
   const { theme, toggleTheme, colorTheme, switchColorTheme, COLOR_THEMES } = useTheme();
   const {
@@ -346,7 +348,6 @@ export const Settings = () => {
           </div>
         )}
 
-        {/* Daily Reminder Toggle + Time */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -355,10 +356,10 @@ export const Settings = () => {
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Daily Reminder
+                  Real-time Reminders
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Get notified at a set time every day
+                  Get notified 2-3 times a day while the app is open
                 </p>
               </div>
             </div>
@@ -368,88 +369,38 @@ export const Settings = () => {
               id="reminder-toggle"
             />
           </div>
-
-          {reminderEnabled && (
-            <div className="ml-12 space-y-2">
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Reminder Time
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="time"
-                  value={reminderTime}
-                  onChange={(e) => updateReminderTime(e.target.value)}
-                  className="px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:border-brand-500 cursor-pointer"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Reminder fires daily at this time
-                </p>
-              </div>
-            </div>
-          )}
         </div>
 
-
-
-        {/* Test Notification Button */}
-        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+      </div>
+      {/* 5. About Developer Section */}
+      <div className="p-6 rounded-3xl glass-card border border-gray-200/80 dark:border-gray-800 space-y-4">
+        <div className="flex items-center gap-2.5 pb-3 border-b border-gray-100 dark:border-gray-800">
+          <User className="w-5 h-5 text-brand-500" />
+          <h2 className="text-base font-bold text-gray-900 dark:text-white font-outfit">
+            About Developer
+          </h2>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              Meet the Creator
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Learn more about the developer behind Habit Tracker Pro.
+            </p>
+          </div>
+          
           <button
-            onClick={handleTestNotification}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-500/30 bg-brand-50/50 dark:bg-brand-950/30 text-brand-600 dark:text-brand-400 font-semibold text-xs hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-colors"
+            onClick={() => navigate('/about-developer')}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold text-sm transition-colors border border-gray-200 dark:border-gray-700"
           >
-            <BellRing className="w-4 h-4" />
-            Send Test Reminder Now
+            <User className="w-4 h-4" />
+            View Profile
           </button>
         </div>
       </div>
 
-      {/* 4. PWA Section */}
-      <div className="p-6 rounded-3xl glass-card border border-brand-500/20 bg-gradient-to-br from-brand-950/20 to-pink-950/10 space-y-4">
-        <div className="flex items-center gap-2.5 pb-3 border-b border-gray-200/20">
-          <Download className="w-5 h-5 text-brand-400" />
-          <h2 className="text-base font-bold text-gray-900 dark:text-white font-outfit">
-            Progressive Web App (PWA)
-          </h2>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              {isOnline ? (
-                <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
-                  <Wifi className="w-4 h-4" /> Online & Syncing
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-400">
-                  <WifiOff className="w-4 h-4" /> Offline Cache Mode
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-gray-400">
-              {isInstalled
-                ? 'App is installed — offline habit tracking is fully available.'
-                : 'Install Habit Tracker on your mobile or desktop for offline access & better notifications.'}
-            </p>
-          </div>
-
-          {isInstallable && (
-            <button
-              onClick={installPWA}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-brand-600 to-pink-600 hover:from-brand-500 hover:to-pink-500 text-white font-bold text-sm shadow-glow transition-all"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Install App</span>
-            </button>
-          )}
-
-          {isInstalled && (
-            <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-xs border border-emerald-500/20">
-              <CheckCircle className="w-4 h-4" />
-              <span>Installed ✓</span>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

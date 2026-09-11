@@ -21,6 +21,7 @@ import { Calendar } from './pages/Calendar';
 import { Analytics } from './pages/Analytics';
 import { Categories } from './pages/Categories';
 import { Settings } from './pages/Settings';
+import { AboutDeveloper } from './pages/AboutDeveloper';
 
 // Application Main Layout Wrapper
 const ProtectedLayout = ({ children, onOpenAddTask, onEditTask }) => {
@@ -133,6 +134,14 @@ export const AppContent = () => {
           element={
             <ProtectedLayout onOpenAddTask={handleOpenAddTask} onEditTask={handleEditTask}>
               <Settings />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/about-developer"
+          element={
+            <ProtectedLayout onOpenAddTask={handleOpenAddTask} onEditTask={handleEditTask}>
+              <AboutDeveloper />
             </ProtectedLayout>
           }
         />

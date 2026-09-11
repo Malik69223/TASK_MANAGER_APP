@@ -200,6 +200,14 @@ const mockHandler = async (endpoint, options) => {
     const completedTasks = tasks.filter((t) => t.status === 'Completed').length;
     const pendingTasks = tasks.filter((t) => t.status === 'Pending').length;
 
+    // Helper to get local date string YYYY-MM-DD
+    const getLocalYYYYMMDD = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
     if (endpoint === '/analytics/dashboard') {
       return {
         success: true,
@@ -220,14 +228,26 @@ const mockHandler = async (endpoint, options) => {
       for (let i = 6; i >= 0; i--) {
         const d = new Date(now);
         d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
+        const dateStr = getLocalYYYYMMDD(d);
         const dayName = days[d.getDay()];
+        
         const completed = tasks.filter(
-          (t) => t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dateStr
+          (t) => t.status === 'Completed' && t.completedAt && getLocalYYYYMMDD(new Date(t.completedAt)) === dateStr
         ).length;
+        
         const total = tasks.filter(
-          (t) => t.createdAt && new Date(t.createdAt).toISOString().split('T')[0] === dateStr
+          (t) => {
+            if (!t.createdAt) return false;
+            const createdStr = getLocalYYYYMMDD(new Date(t.createdAt));
+            if (createdStr > dateStr) return false; // created after this day
+            if (t.status === 'Completed' && t.completedAt) {
+              const compStr = getLocalYYYYMMDD(new Date(t.completedAt));
+              if (compStr < dateStr) return false; // completed before this day
+            }
+            return true;
+          }
         ).length;
+
         weeklyData.push({
           day: dayName,
           date: dateStr,
@@ -246,19 +266,34 @@ const mockHandler = async (endpoint, options) => {
       const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
       const monthlyData = [];
       for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = new Date(currentYear, currentMonth, day).toISOString().split('T')[0];
+        const d = new Date(currentYear, currentMonth, day);
+        const dateStr = getLocalYYYYMMDD(d);
+        
         const completed = tasks.filter(
-          (t) => t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dateStr
+          (t) => t.status === 'Completed' && t.completedAt && getLocalYYYYMMDD(new Date(t.completedAt)) === dateStr
         ).length;
-        const pending = tasks.filter(
-          (t) => t.status === 'Pending' && t.createdAt && new Date(t.createdAt).toISOString().split('T')[0] === dateStr
+        
+        const total = tasks.filter(
+          (t) => {
+            if (!t.createdAt) return false;
+            const createdStr = getLocalYYYYMMDD(new Date(t.createdAt));
+            if (createdStr > dateStr) return false;
+            if (t.status === 'Completed' && t.completedAt) {
+              const compStr = getLocalYYYYMMDD(new Date(t.completedAt));
+              if (compStr < dateStr) return false;
+            }
+            return true;
+          }
         ).length;
+
+        const pending = total - completed;
+
         monthlyData.push({
           day: `Day ${day}`,
           date: dateStr,
           completed,
           pending,
-          total: completed + pending,
+          total,
         });
       }
       return { success: true, data: monthlyData };
