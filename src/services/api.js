@@ -121,18 +121,47 @@ const mockHandler = async (endpoint, options) => {
     const taskId = endpoint.split('/')[2];
 
     if (endpoint.endsWith('/complete')) {
-      tasks = tasks.map((t) =>
-        t._id === taskId ? { ...t, status: 'Completed', completedAt: new Date().toISOString() } : t
-      );
+      tasks = tasks.map((t) => {
+        if (t._id === taskId) {
+          const nowIso = new Date().toISOString();
+          // Helper to get local date string YYYY-MM-DD
+          const getLocalYYYYMMDD = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+          };
+          const today = getLocalYYYYMMDD(new Date());
+          const completedDates = t.completedDates || [];
+          if (!completedDates.includes(today)) {
+            completedDates.push(today);
+          }
+          return { ...t, status: 'Completed', completedAt: nowIso, completedDates };
+        }
+        return t;
+      });
       localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
       const updated = tasks.find((t) => t._id === taskId);
       return { success: true, message: 'Task completed', data: updated };
     }
 
     if (endpoint.endsWith('/uncomplete')) {
-      tasks = tasks.map((t) =>
-        t._id === taskId ? { ...t, status: 'Pending', completedAt: null } : t
-      );
+      tasks = tasks.map((t) => {
+        if (t._id === taskId) {
+          // Helper to get local date string YYYY-MM-DD
+          const getLocalYYYYMMDD = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+          };
+          const today = getLocalYYYYMMDD(new Date());
+          let completedDates = t.completedDates || [];
+          completedDates = completedDates.filter(d => d !== today);
+          return { ...t, status: 'Pending', completedAt: null, completedDates };
+        }
+        return t;
+      });
       localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
       const updated = tasks.find((t) => t._id === taskId);
       return { success: true, message: 'Task marked as pending', data: updated };
@@ -232,7 +261,10 @@ const mockHandler = async (endpoint, options) => {
         const dayName = days[d.getDay()];
         
         const completed = tasks.filter(
-          (t) => t.status === 'Completed' && t.completedAt && getLocalYYYYMMDD(new Date(t.completedAt)) === dateStr
+          (t) => {
+             if (t.completedDates && t.completedDates.includes(dateStr)) return true;
+             return t.status === 'Completed' && t.completedAt && getLocalYYYYMMDD(new Date(t.completedAt)) === dateStr;
+          }
         ).length;
         
         const total = tasks.filter(
@@ -240,7 +272,11 @@ const mockHandler = async (endpoint, options) => {
             if (!t.createdAt) return false;
             const createdStr = getLocalYYYYMMDD(new Date(t.createdAt));
             if (createdStr > dateStr) return false; // created after this day
-            if (t.status === 'Completed' && t.completedAt) {
+            if (t.completedDates && t.completedDates.length > 0) {
+              // check if completed before this day and NOT today
+              const firstComp = t.completedDates[0];
+              if (firstComp < dateStr && !t.completedDates.includes(dateStr)) return false; 
+            } else if (t.status === 'Completed' && t.completedAt) {
               const compStr = getLocalYYYYMMDD(new Date(t.completedAt));
               if (compStr < dateStr) return false; // completed before this day
             }
@@ -270,7 +306,10 @@ const mockHandler = async (endpoint, options) => {
         const dateStr = getLocalYYYYMMDD(d);
         
         const completed = tasks.filter(
-          (t) => t.status === 'Completed' && t.completedAt && getLocalYYYYMMDD(new Date(t.completedAt)) === dateStr
+          (t) => {
+             if (t.completedDates && t.completedDates.includes(dateStr)) return true;
+             return t.status === 'Completed' && t.completedAt && getLocalYYYYMMDD(new Date(t.completedAt)) === dateStr;
+          }
         ).length;
         
         const total = tasks.filter(
@@ -278,7 +317,10 @@ const mockHandler = async (endpoint, options) => {
             if (!t.createdAt) return false;
             const createdStr = getLocalYYYYMMDD(new Date(t.createdAt));
             if (createdStr > dateStr) return false;
-            if (t.status === 'Completed' && t.completedAt) {
+            if (t.completedDates && t.completedDates.length > 0) {
+              const firstComp = t.completedDates[0];
+              if (firstComp < dateStr && !t.completedDates.includes(dateStr)) return false; 
+            } else if (t.status === 'Completed' && t.completedAt) {
               const compStr = getLocalYYYYMMDD(new Date(t.completedAt));
               if (compStr < dateStr) return false;
             }

@@ -1,16 +1,29 @@
 const Task = require('../models/Task');
+const ActivityLog = require('../models/ActivityLog');
 
 // Helper to calculate productivity streak
-const calculateStreak = (tasks) => {
-  if (!tasks || tasks.length === 0) return 0;
+const calculateStreak = (tasks, logs) => {
+  if ((!tasks || tasks.length === 0) && (!logs || logs.length === 0)) return 0;
 
   const datesWithCompleted = new Set();
-  tasks.forEach((task) => {
-    if (task.status === 'Completed' && task.completedAt) {
-      const dateStr = new Date(task.completedAt).toISOString().split('T')[0];
-      datesWithCompleted.add(dateStr);
-    }
-  });
+  
+  if (logs) {
+    logs.forEach((log) => {
+      if (log.timestamp) {
+        const dateStr = new Date(log.timestamp).toISOString().split('T')[0];
+        datesWithCompleted.add(dateStr);
+      }
+    });
+  }
+
+  if (tasks) {
+    tasks.forEach((task) => {
+      if (task.status === 'Completed' && task.completedAt) {
+        const dateStr = new Date(task.completedAt).toISOString().split('T')[0];
+        datesWithCompleted.add(dateStr);
+      }
+    });
+  }
 
   if (datesWithCompleted.size === 0) return 0;
 
@@ -52,6 +65,7 @@ const calculateStreak = (tasks) => {
 const getDashboardAnalytics = async (req, res, next) => {
   try {
     const tasks = await Task.find({ userId: req.user._id });
+    const logs = await ActivityLog.find({ userId: req.user._id, action: 'complete' });
     const now = new Date();
 
     const totalTasks = tasks.length;
@@ -72,11 +86,24 @@ const getDashboardAnalytics = async (req, res, next) => {
       return taskDue === todayStr || taskComp === todayStr;
     });
 
-    const todayCompleted = todayTasks.filter((t) => t.status === 'Completed').length;
+    // Need to also count tasks completed today in logs
+    const completedTodaySet = new Set();
+    logs.forEach(log => {
+      if (new Date(log.timestamp).toISOString().split('T')[0] === todayStr && log.taskId) {
+        completedTodaySet.add(log.taskId.toString());
+      }
+    });
+    tasks.forEach(t => {
+      if (t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === todayStr) {
+        completedTodaySet.add(t._id.toString());
+      }
+    });
+
+    const todayCompleted = completedTodaySet.size;
     const todayTotal = todayTasks.length;
     const dailyProductivityPercentage = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : (totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0);
 
-    const productivityStreak = calculateStreak(tasks);
+    const productivityStreak = calculateStreak(tasks, logs);
 
     return res.status(200).json({
       success: true,
@@ -100,6 +127,7 @@ const getDashboardAnalytics = async (req, res, next) => {
 const getWeeklyAnalytics = async (req, res, next) => {
   try {
     const tasks = await Task.find({ userId: req.user._id });
+    const logs = await ActivityLog.find({ userId: req.user._id, action: 'complete' });
     const weeklyData = [];
     const now = new Date();
 
@@ -114,9 +142,19 @@ const getWeeklyAnalytics = async (req, res, next) => {
       const dateStr = d.toISOString().split('T')[0];
       const dayName = daysOfWeek[d.getDay()];
 
-      const completedCount = tasks.filter(
-        (t) => t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dateStr
-      ).length;
+      const completedOnDate = new Set();
+      logs.forEach(log => {
+        if (new Date(log.timestamp).toISOString().split('T')[0] === dateStr && log.taskId) {
+          completedOnDate.add(log.taskId.toString());
+        }
+      });
+      tasks.forEach(t => {
+        if (t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dateStr) {
+          completedOnDate.add(t._id.toString());
+        }
+      });
+
+      const completedCount = completedOnDate.size;
 
       const createdOrDueCount = tasks.filter(
         (t) => new Date(t.dueDate).toISOString().split('T')[0] === dateStr
@@ -151,6 +189,7 @@ const getWeeklyAnalytics = async (req, res, next) => {
 const getMonthlyAnalytics = async (req, res, next) => {
   try {
     const tasks = await Task.find({ userId: req.user._id });
+    const logs = await ActivityLog.find({ userId: req.user._id, action: 'complete' });
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
@@ -162,9 +201,18 @@ const getMonthlyAnalytics = async (req, res, next) => {
       const d = new Date(currentYear, currentMonth, day);
       const dateStr = d.toISOString().split('T')[0];
 
-      const completed = tasks.filter(
-        (t) => t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dateStr
-      ).length;
+      const completedOnDate = new Set();
+      logs.forEach(log => {
+        if (new Date(log.timestamp).toISOString().split('T')[0] === dateStr && log.taskId) {
+          completedOnDate.add(log.taskId.toString());
+        }
+      });
+      tasks.forEach(t => {
+        if (t.status === 'Completed' && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dateStr) {
+          completedOnDate.add(t._id.toString());
+        }
+      });
+      const completed = completedOnDate.size;
 
       const pending = tasks.filter(
         (t) => t.status === 'Pending' && new Date(t.dueDate).toISOString().split('T')[0] === dateStr
