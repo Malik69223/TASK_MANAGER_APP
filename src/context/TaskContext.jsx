@@ -119,13 +119,13 @@ export const TaskProvider = ({ children }) => {
   // Automatic Daily Task Status Refresh (Resets Completed Tasks to Pending for New Day)
   const performDailyTaskRefreshIfNeeded = useCallback(async (taskList) => {
     const todayStr = new Date().toISOString().split('T')[0];
-    const lastReset = localStorage.getItem('taskmanager_last_daily_reset');
+    const lastReset = localStorage.getItem('taskmanager_last_backend_reset_date');
 
-    if (lastReset && lastReset !== todayStr) {
+    if (lastReset !== todayStr) {
       try {
         const res = await taskService.resetDailyTasks();
         if (res.success) {
-          localStorage.setItem('taskmanager_last_daily_reset', todayStr);
+          localStorage.setItem('taskmanager_last_backend_reset_date', todayStr);
           try {
             localStorage.setItem('taskmanager_tasks_data', JSON.stringify(res.data));
           } catch (e) {}
@@ -135,8 +135,6 @@ export const TaskProvider = ({ children }) => {
       } catch (e) {
         console.error('Failed to perform daily reset on backend', e);
       }
-    } else if (!lastReset) {
-      localStorage.setItem('taskmanager_last_daily_reset', todayStr);
     }
 
     return taskList;
@@ -173,8 +171,8 @@ export const TaskProvider = ({ children }) => {
     // Check for 12 AM midnight transition every 30 seconds
     const interval = setInterval(() => {
       const todayStr = new Date().toISOString().split('T')[0];
-      const lastReset = localStorage.getItem('taskmanager_last_daily_reset');
-      if (lastReset && lastReset !== todayStr) {
+      const lastReset = localStorage.getItem('taskmanager_last_backend_reset_date');
+      if (lastReset !== todayStr) {
         fetchTasksAndCategories();
       }
     }, 30000);
