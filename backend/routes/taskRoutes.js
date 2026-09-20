@@ -7,10 +7,13 @@ const {
   deleteTask,
   completeTask,
   uncompleteTask,
+  resetDailyTasks,
 } = require('../controllers/taskController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect); // All task routes protected
+
+router.post('/reset-daily', resetDailyTasks);
 
 router.route('/')
   .get(getTasks)

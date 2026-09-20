@@ -117,32 +117,23 @@ export const TaskProvider = ({ children }) => {
   }, []);
 
   // Automatic Daily Task Status Refresh (Resets Completed Tasks to Pending for New Day)
-  const performDailyTaskRefreshIfNeeded = useCallback((taskList) => {
+  const performDailyTaskRefreshIfNeeded = useCallback(async (taskList) => {
     const todayStr = new Date().toISOString().split('T')[0];
     const lastReset = localStorage.getItem('taskmanager_last_daily_reset');
 
     if (lastReset && lastReset !== todayStr) {
-      let updated = false;
-      const refreshedTasks = taskList.map((t) => {
-        if (t.status === 'Completed') {
-          updated = true;
-          return {
-            ...t,
-            status: 'Pending',
-            completedAt: null,
-          };
+      try {
+        const res = await taskService.resetDailyTasks();
+        if (res.success) {
+          localStorage.setItem('taskmanager_last_daily_reset', todayStr);
+          try {
+            localStorage.setItem('taskmanager_tasks_data', JSON.stringify(res.data));
+          } catch (e) {}
+          showToast('☀️ New Day! Your tasks have been refreshed to Pending.', 'info');
+          return res.data;
         }
-        return t;
-      });
-
-      localStorage.setItem('taskmanager_last_daily_reset', todayStr);
-
-      if (updated) {
-        try {
-          localStorage.setItem('taskmanager_tasks_data', JSON.stringify(refreshedTasks));
-        } catch (e) {}
-        showToast('☀️ New Day! Your tasks have been refreshed to Pending.', 'info');
-        return refreshedTasks;
+      } catch (e) {
+        console.error('Failed to perform daily reset on backend', e);
       }
     } else if (!lastReset) {
       localStorage.setItem('taskmanager_last_daily_reset', todayStr);
@@ -162,7 +153,7 @@ export const TaskProvider = ({ children }) => {
 
       if (taskRes.success) {
         recordAppVisit();
-        const activeTasks = performDailyTaskRefreshIfNeeded(taskRes.data);
+        const activeTasks = await performDailyTaskRefreshIfNeeded(taskRes.data);
         setTasks(activeTasks);
         calculateStats(activeTasks);
       }

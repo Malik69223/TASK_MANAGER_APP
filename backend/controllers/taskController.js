@@ -248,6 +248,33 @@ const uncompleteTask = async (req, res, next) => {
   }
 };
 
+// @desc    Reset all completed tasks to pending (daily reset)
+// @route   POST /api/tasks/reset-daily
+// @access  Private
+const resetDailyTasks = async (req, res, next) => {
+  try {
+    // Optionally only reset tasks that are recurring: { userId: req.user._id, status: 'Completed', isRecurring: true }
+    // Based on existing logic, it resets all completed tasks
+    const query = { userId: req.user._id, status: 'Completed' };
+    
+    await Task.updateMany(query, {
+      $set: { status: 'Pending', completedAt: null }
+    });
+
+    await logActivity(req.user._id, null, 'daily_reset', `Reset completed tasks to pending for new day`);
+
+    const updatedTasks = await Task.find({ userId: req.user._id }).sort({ dueDate: 1 });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Daily reset successful',
+      data: updatedTasks,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getTasks,
   createTask,
@@ -255,4 +282,5 @@ module.exports = {
   deleteTask,
   completeTask,
   uncompleteTask,
+  resetDailyTasks,
 };

@@ -40,4 +40,10 @@ export const taskService = {
       method: 'PATCH',
     });
   },
+
+  resetDailyTasks: async () => {
+    return await apiRequest('/tasks/reset-daily', {
+      method: 'POST',
+    });
+  },
 };
