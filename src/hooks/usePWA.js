@@ -76,13 +76,16 @@ export const usePWA = () => {
   const showNotification = async (title, options) => {
     try {
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
-        if (registration && registration.showNotification) {
-          await registration.showNotification(title, options);
-          return;
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        if (registrations.length > 0) {
+          const registration = await navigator.serviceWorker.ready;
+          if (registration && registration.showNotification) {
+            await registration.showNotification(title, options);
+            return;
+          }
         }
       }
-      // Fallback for browsers without Service Worker support
+      // Fallback for browsers without Service Worker support or active registration
       new Notification(title, options);
     } catch (e) {
       console.warn('Notification error:', e);
